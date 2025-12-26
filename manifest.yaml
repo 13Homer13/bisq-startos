@@ -1,9 +1,9 @@
 
 id: bisq 
 title: "Bisq"
-version: 1.9.21.1
+version: 1.9.22
 release-notes: |
-  - Fixed Bitcoin version range
+  - Upstream Bisq update to version 1.9.22 - [click here for more info](https://github.com/bisq-network/bisq/releases/tag/v1.9.22)
 license: GPLv3
 wrapper-repo: "https://github.com/Start9Labs/bisq-startos"
 upstream-repo: "https://github.com/bisq-network/bisq"
