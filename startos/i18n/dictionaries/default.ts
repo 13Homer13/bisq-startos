@@ -2,14 +2,22 @@ export const DEFAULT_LANG = 'en_US'
 
 const dict = {
   // main.ts
-  'Starting Hello World!': 0,
-  'Web Interface': 1,
-  'The web interface is ready': 2,
-  'The web interface is not ready': 3,
+  'Starting Bisq!': 0,
+  'Bisq Desktop': 1,
+  'Bisq desktop is ready': 2,
+  'Bisq desktop is not ready': 3,
 
   // interfaces.ts
-  'Web UI': 4,
-  'The web interface of Hello World': 5,
+  'Access the Bisq desktop application through your web browser': 4,
+
+  // actions/getCredentials.ts
+  'Get Credentials': 5,
+  'Retrieve the username and password for the Bisq desktop interface': 6,
+
+  // actions/resetPassword.ts
+  'Reset Password': 7,
+  'Generate a new random password for the Bisq desktop': 8,
+  'Your current password will be invalidated. The service will restart.': 9,
 } as const
 
 /**

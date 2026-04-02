@@ -8,9 +8,11 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     protocol: 'http',
   })
   const ui = sdk.createInterface(effects, {
-    name: i18n('Web UI'),
+    name: i18n('Bisq Desktop'),
     id: 'ui',
-    description: i18n('The web interface of Hello World'),
+    description: i18n(
+      'Access the Bisq desktop application through your web browser',
+    ),
     type: 'ui',
     masked: false,
     schemeOverride: null,
