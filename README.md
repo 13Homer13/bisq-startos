@@ -90,3 +90,46 @@ Or sideload the `.s9pk` file via **StartOS > System > Sideload**.
 ## License
 
 Bisq is licensed under [AGPL-3.0](https://github.com/bisq-network/bisq/blob/master/LICENSE).
+
+
+---
+
+## Quick Reference for AI Consumers
+
+```
+package_id: bisq
+version: 1.9.22:1
+image: custom dockerBuild (multi-stage: ubuntu:jammy + baseimage-kasmvnc:debianbookworm)
+architectures: [x86_64]
+pattern: webtop (desktop app in browser via KasmVNC)
+volumes:
+  main: /config
+ports:
+  ui: 3000 (KasmVNC web interface)
+dependencies:
+  bitcoind:
+    kind: running
+    optional: false
+startos_sdk: 0.4.0
+exec_command: [unshare, --pid, --fork, --mount-proc, /init]
+auth: CUSTOM_USER + PASSWORD env vars (KasmVNC basic auth)
+app_data: /config/.local/share/Bisq/
+app_config: /config/.local/share/Bisq/bisq.properties
+app_launch: /opt/bisq/bin/Bisq (from startwm.sh)
+window_manager: openbox-session
+actions:
+  - get-credentials (retrieve username/password)
+  - reset-password (generate new random password)
+key_patterns:
+  - Multi-stage Dockerfile: install .deb in Ubuntu, copy to Debian
+  - FROM scratch: flatten layers, remove Docker/fonts/bloat
+  - unshare --pid: gives /init its own PID namespace (s6 requires PID 1)
+  - wmctrl: force maximize app window after launch
+  - pkill + lock cleanup: prevent double instance errors
+  - dpkg -i ... || true: ignore post-install desktop menu errors
+known_issues:
+  - JavaFX needs GTK3+X11 libs installed in final stage
+  - s6-overlay-suexec crashes without PID namespace isolation
+  - baseimage-kasmvnc shows deprecation warning (remove 99-deprecation)
+  - App must launch from startwm.sh, not autostart alone
+```
