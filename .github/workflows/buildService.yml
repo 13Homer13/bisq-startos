@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
   pull_request:
     paths-ignore: ['*.md']
-    branches: ['main']
+    branches: ['master']
   push:
     paths-ignore: ['*.md']
-    branches: ['main']
+    branches: ['master']
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
