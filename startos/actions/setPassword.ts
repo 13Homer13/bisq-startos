@@ -4,7 +4,7 @@ import { sdk } from '../sdk'
 import { getDefaultPassword } from '../utils'
 
 export const setPassword = sdk.Action.withoutInput(
-  'setPassword',
+  'set-password',
 
   async ({ effects }) => {
     return {
