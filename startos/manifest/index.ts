@@ -1,5 +1,5 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { long, short, alertInstall } from './i18n'
+import { long, short } from './i18n'
 
 export const manifest = setupManifest({
   id: 'bisq',
@@ -18,19 +18,14 @@ export const manifest = setupManifest({
       arch: ['x86_64'],
     },
   },
-  alerts: {
-    install: alertInstall,
-    update: null,
-    uninstall: null,
-    restore: null,
-    start: null,
-    stop: null,
-  },
   dependencies: {
     bitcoind: {
       description: 'Bisq requires a Bitcoin Core full node for blockchain data',
       optional: false,
-      s9pk: null,
+      metadata: {
+        title: 'Bitcoin',
+        icon: 'https://raw.githubusercontent.com/Start9Labs/bitcoin-core-startos/feec0b1dae42961a257948fe39b40caf8672fce1/dep-icon.svg',
+      },
     },
   },
 })

@@ -16,18 +16,5 @@ export const long = {
   pl_PL:
     'Bisq to zdecentralizowana giełda Bitcoin typu peer-to-peer. Wymieniaj Bitcoin na waluty fiducjarne i inne kryptowaluty bez pośredników. Uruchomienie Bisq na serwerze zapewnia realizację transakcji nawet gdy laptop jest wyłączony.',
   fr_FR:
-    'Bisq est un échange Bitcoin décentralisé pair-à-pair. Échangez du Bitcoin contre des devises fiduciaires et d\'autres cryptomonnaies sans intermédiaires. Exécuter Bisq sur un serveur garantit que vos transactions se terminent même lorsque votre ordinateur portable est fermé.',
-}
-
-export const alertInstall = {
-  en_US:
-    'After installation, run the "Get Credentials" action to retrieve your username and password for the Bisq desktop interface.',
-  es_ES:
-    'Después de la instalación, ejecute la acción "Obtener credenciales" para recuperar su nombre de usuario y contraseña para la interfaz de escritorio de Bisq.',
-  de_DE:
-    'Führen Sie nach der Installation die Aktion "Zugangsdaten abrufen" aus, um Ihren Benutzernamen und Ihr Passwort für die Bisq-Desktop-Oberfläche abzurufen.',
-  pl_PL:
-    'Po instalacji uruchom akcję "Pobierz dane logowania", aby uzyskać nazwę użytkownika i hasło do interfejsu Bisq.',
-  fr_FR:
-    'Après l\'installation, exécutez l\'action "Obtenir les identifiants" pour récupérer votre nom d\'utilisateur et mot de passe pour l\'interface Bisq.',
+    "Bisq est un échange Bitcoin décentralisé pair-à-pair. Échangez du Bitcoin contre des devises fiduciaires et d'autres cryptomonnaies sans intermédiaires. Exécuter Bisq sur un serveur garantit que vos transactions se terminent même lorsque votre ordinateur portable est fermé.",
 }

@@ -1,135 +1,157 @@
 <p align="center">
-  <img src="icon.png" alt="Bisq Logo" width="100">
+  <img src="icon.png" alt="Bisq Logo" width="21%">
 </p>
 
-# Bisq for StartOS
+# Bisq on StartOS
 
-[Bisq](https://bisq.network/) is a decentralized peer-to-peer Bitcoin exchange. Trade Bitcoin for fiat currencies and other cryptocurrencies without intermediaries, KYC, or centralized servers. By running Bisq on StartOS, your trades continue 24/7 — no need to keep your laptop open.
+> **Upstream docs:** <https://bisq.wiki/>
+>
+> Everything not listed in this document should behave the same as upstream
+> Bisq. If a feature, setting, or behavior is not mentioned here, the upstream
+> documentation is accurate and fully applicable.
 
-This repository packages Bisq for [StartOS](https://start9.com/).
+[Bisq](https://bisq.network/) is a decentralized peer-to-peer Bitcoin exchange. Trade Bitcoin for fiat currencies and other cryptocurrencies without intermediaries, KYC, or centralized servers.
 
-## How It Works
+---
 
-Bisq is a JavaFX desktop application with no web interface. This package runs Bisq inside a browser-accessible Linux desktop (webtop) powered by KasmVNC. You access the full Bisq desktop through your web browser.
+## Table of Contents
+
+- [Image and Container Runtime](#image-and-container-runtime)
+- [Volume and Data Layout](#volume-and-data-layout)
+- [Installation and First-Run Flow](#installation-and-first-run-flow)
+- [Configuration Management](#configuration-management)
+- [Network Access and Interfaces](#network-access-and-interfaces)
+- [Actions](#actions-startos-ui)
+- [Backups and Restore](#backups-and-restore)
+- [Health Checks](#health-checks)
+- [Dependencies](#dependencies)
+- [Limitations and Differences](#limitations-and-differences)
+- [What Is Unchanged from Upstream](#what-is-unchanged-from-upstream)
+- [Contributing](#contributing)
+
+---
+
+## Image and Container Runtime
+
+| Property      | Value                                                                 |
+|---------------|-----------------------------------------------------------------------|
+| Image source  | Custom multi-stage Dockerfile (Ubuntu Jammy builder + KasmVNC Debian Bookworm webtop, flattened via `FROM scratch`) |
+| Architectures | x86_64 only                                                          |
+| Entrypoint    | `unshare --pid --fork --mount-proc /init` (s6-overlay requires PID 1 in its own namespace) |
+
+Bisq is a JavaFX desktop application with no web interface. This package runs it inside a browser-accessible Linux desktop (webtop) powered by KasmVNC:
+
 ```
-Browser → KasmVNC (port 3000) → Openbox → Bisq (JavaFX)
+Browser -> KasmVNC (port 3000) -> Openbox -> Bisq (JavaFX)
 ```
 
-## Features
+## Volume and Data Layout
 
-- **Always-on trading** — trades complete even when your laptop is off
-- **Browser access** — full Bisq desktop accessible from any device
-- **Auto-generated credentials** — secure login for the webtop interface
-- **Password management** — get credentials and reset password via StartOS actions
-- **Persistent data** — wallet, trades, and settings survive restarts and updates
-- **Backup support** — included in StartOS encrypted backups
+| Volume | Mount point | Contents                                                  |
+|--------|-------------|-----------------------------------------------------------|
+| `main` | `/config`   | Webtop home, Bisq application data, `store.json`         |
 
-## Actions
+- **`store.json`** — StartOS-managed file storing the admin username and password
+- **`/config/.local/share/Bisq/`** — upstream Bisq data directory (wallet, trades, settings)
+- **`/config/.local/share/Bisq/bisq.properties`** — generated at launch by `startwm.sh`
 
-| Action | Description |
-|--------|-------------|
-| **Get Credentials** | Retrieve username and password for the webtop interface |
-| **Reset Password** | Generate a new random password (service restarts) |
+## Installation and First-Run Flow
+
+1. On install, `store.json` is seeded with username `bisq` and no password.
+2. A **critical task** prompts the user to run the **Set Admin Password** action, which generates a random password and displays the credentials.
+3. The password is passed to KasmVNC via the `PASSWORD` environment variable.
+
+There is no upstream setup wizard to skip — Bisq launches directly.
+
+## Configuration Management
+
+| StartOS-Managed                        | Upstream-Managed                              |
+|----------------------------------------|-----------------------------------------------|
+| Admin username and password            | All Bisq application settings via its own UI  |
+| KasmVNC webtop settings (port, auth)   | Wallet, trades, offers                        |
+| `bisq.properties` (Tor/network flags)  |                                               |
+
+The `bisq.properties` file is regenerated on every launch by `startwm.sh` with:
+- `useTorForBtc=false` (StartOS handles Tor at the network level)
+- Empty banned node lists
+
+## Network Access and Interfaces
+
+| Interface      | Port | Protocol | Purpose                         |
+|----------------|------|----------|---------------------------------|
+| Bisq Desktop   | 3000 | HTTP     | KasmVNC web interface (full Bisq desktop in browser) |
+
+Access via LAN (.local), Tor (.onion), or any other address type configured in StartOS. StartOS terminates TLS, so the interface is always available over HTTPS to the user.
+
+## Actions (StartOS UI)
+
+| Action               | Purpose                                              | Availability | Inputs | Outputs                    |
+|----------------------|------------------------------------------------------|--------------|--------|----------------------------|
+| **Set Admin Password** | Generate a new random password for the webtop interface | Any status   | None   | Username and new password  |
+
+On first install, this action is triggered automatically as a critical task.
+
+## Backups and Restore
+
+- **Backed up:** The entire `main` volume (webtop config, Bisq data, wallet, trades, `store.json`)
+- **Restore behavior:** Standard volume restore. On restore, `seedFiles` re-runs but does not create a password task (only on fresh install).
+
+## Health Checks
+
+| Check         | Method              | Success message           | Error message               |
+|---------------|---------------------|---------------------------|-----------------------------|
+| Bisq Desktop  | Port 3000 listening | "Bisq desktop is ready"   | "Bisq desktop is not ready" |
 
 ## Dependencies
 
-- **Bitcoin Core / Bitcoin Knots** (`bitcoind`) — required for blockchain data
+| Dependency       | Required | Version     | Health check | Purpose                    |
+|------------------|----------|-------------|--------------|----------------------------|
+| Bitcoin (`bitcoind`) | Yes  | >= 28.3:5   | `bitcoind`   | Blockchain data            |
 
-## Building from Source
+## Limitations and Differences
 
-### Prerequisites
+1. **x86_64 only** — Bisq does not provide official ARM builds.
+2. **No direct desktop access** — Bisq runs inside a KasmVNC webtop, not as a native desktop app.
+3. **`bisq.properties` is overwritten on every start** — manual edits to this file will not persist.
+4. **Tor for BTC is disabled** — StartOS manages Tor at the network layer; Bisq's built-in Tor is bypassed.
+5. **First launch is slow** — Bisq needs to connect to the P2P trading network and sync, which can take several minutes.
 
-- Docker
-- Make
-- Node.js v22
-- SquashFS tools (`squashfs-tools`, `squashfs-tools-ng`)
-- [start-cli](https://github.com/Start9Labs/start-cli)
+## What Is Unchanged from Upstream
 
-See the [StartOS Packaging Guide](https://docs.start9.com/packaging/0.4.0.x/environment-setup.html) for detailed setup instructions.
+- All trading functionality (offers, trades, disputes)
+- Wallet management (send, receive, backup seed)
+- All Bisq UI settings and preferences
+- P2P network participation
+- DAO functionality
 
-### Build
-```bash
-git clone https://github.com/13Homer13/bisq-startos.git
-cd bisq-startos
-npm install
-start-cli init-key  # first time only
-make x86            # for x86_64
-make arm            # for aarch64
-make                # for all architectures
-```
+## Contributing
 
-### Install
-
-Configure your StartOS server address:
-```bash
-mkdir -p ~/.startos
-echo "host: https://your-server.local" > ~/.startos/config.yaml
-start-cli auth login
-make install
-```
-
-Or sideload the `.s9pk` file via **StartOS > System > Sideload**.
-
-## Architecture
-
-- **x86_64** only (Bisq does not provide official ARM builds)
-
-## Notes
-
-- First launch takes a few minutes as Bisq connects to the Tor network and syncs with the P2P trading network
-- The webtop uses HTTPS Basic Authentication — your browser will prompt for credentials on first connect
-- Bisq data is stored in `/config/.local/share/Bisq/` inside the container, which maps to the `main` volume
-
-## Upstream
-
-- **Project:** https://bisq.network/
-- **Source:** https://github.com/bisq-network/bisq
-- **Docs:** https://bisq.wiki/
-- **Version:** 1.9.22
-
-## License
-
-Bisq is licensed under [AGPL-3.0](https://github.com/bisq-network/bisq/blob/master/LICENSE).
-
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
 ## Quick Reference for AI Consumers
 
-```
+```yaml
 package_id: bisq
-version: 1.9.22:1
-image: custom dockerBuild (multi-stage: ubuntu:jammy + baseimage-kasmvnc:debianbookworm)
+upstream_version: 1.9.22
+image: custom dockerBuild (multi-stage: ubuntu:jammy + baseimage-kasmvnc:debianbookworm, flattened via FROM scratch)
 architectures: [x86_64]
-pattern: webtop (desktop app in browser via KasmVNC)
 volumes:
   main: /config
 ports:
-  ui: 3000 (KasmVNC web interface)
+  ui: 3000
 dependencies:
-  bitcoind:
-    kind: running
-    optional: false
-startos_sdk: 0.4.0
-exec_command: [unshare, --pid, --fork, --mount-proc, /init]
-auth: CUSTOM_USER + PASSWORD env vars (KasmVNC basic auth)
-app_data: /config/.local/share/Bisq/
-app_config: /config/.local/share/Bisq/bisq.properties
-app_launch: /opt/bisq/bin/Bisq (from startwm.sh)
-window_manager: openbox-session
+  - bitcoind (running, >= 28.3:5, health check: bitcoind)
+startos_managed_env_vars:
+  - CUSTOM_USER
+  - PASSWORD
+  - PUID
+  - PGID
+  - TZ
+  - TITLE
+  - S6_CMD_WAIT_FOR_SERVICES_MAXTIME
+  - S6_VERBOSITY
 actions:
-  - get-credentials (retrieve username/password)
-  - reset-password (generate new random password)
-key_patterns:
-  - Multi-stage Dockerfile: install .deb in Ubuntu, copy to Debian
-  - FROM scratch: flatten layers, remove Docker/fonts/bloat
-  - unshare --pid: gives /init its own PID namespace (s6 requires PID 1)
-  - wmctrl: force maximize app window after launch
-  - pkill + lock cleanup: prevent double instance errors
-  - dpkg -i ... || true: ignore post-install desktop menu errors
-known_issues:
-  - JavaFX needs GTK3+X11 libs installed in final stage
-  - s6-overlay-suexec crashes without PID namespace isolation
-  - baseimage-kasmvnc shows deprecation warning (remove 99-deprecation)
-  - App must launch from startwm.sh, not autostart alone
+  - setPassword
 ```

@@ -1,7 +1,4 @@
 import { sdk } from '../sdk'
-import { getCredentials } from './getCredentials'
-import { resetPassword } from './resetPassword'
+import { setPassword } from './setPassword'
 
-export const actions = sdk.Actions.of()
-  .addAction(getCredentials)
-  .addAction(resetPassword)
+export const actions = sdk.Actions.of().addAction(setPassword)

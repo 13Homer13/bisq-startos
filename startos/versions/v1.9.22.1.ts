@@ -1,4 +1,4 @@
-import { VersionInfo, IMPOSSIBLE, YAML } from '@start9labs/start-sdk'
+import { IMPOSSIBLE, VersionInfo, YAML } from '@start9labs/start-sdk'
 import { readFile, rm } from 'fs/promises'
 import { storeJson } from '../fileModels/store.json'
 import { getDefaultPassword } from '../utils'
@@ -23,8 +23,7 @@ export const v_1_9_22_1 = VersionInfo.of({
       if (configYaml) {
         // Preserve old password if it existed, otherwise generate new
         await storeJson.merge(effects, {
-          username: 'bisq',
-          password: configYaml.password || getDefaultPassword(),
+          PASSWORD: configYaml.password || getDefaultPassword(),
         })
         // Remove old start9 config directory
         await rm('/media/startos/volumes/main/start9', {

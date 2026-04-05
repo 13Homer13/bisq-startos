@@ -1,12 +1,14 @@
-import { sdk } from '../sdk'
+import { setPassword } from '../actions/setPassword'
 import { storeJson } from '../fileModels/store.json'
-import { getDefaultPassword } from '../utils'
+import { i18n } from '../i18n'
+import { sdk } from '../sdk'
 
 export const seedFiles = sdk.setupOnInit(async (effects, kind) => {
-  if (kind !== 'install') return
+  await storeJson.merge(effects, {})
 
-  await storeJson.write(effects, {
-    username: 'bisq',
-    password: getDefaultPassword(),
-  })
+  if (kind === 'install') {
+    sdk.action.createOwnTask(effects, setPassword, 'critical', {
+      reason: i18n('Set your admin password'),
+    })
+  }
 })

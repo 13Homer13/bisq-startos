@@ -10,14 +10,12 @@ const dict = {
   // interfaces.ts
   'Access the Bisq desktop application through your web browser': 4,
 
-  // actions/getCredentials.ts
-  'Get Credentials': 5,
-  'Retrieve the username and password for the Bisq desktop interface': 6,
+  // actions/setPassword.ts
+  'Set Admin Password': 5,
+  'Generate a new random password for the Bisq admin user desktop': 6,
 
-  // actions/resetPassword.ts
-  'Reset Password': 7,
-  'Generate a new random password for the Bisq desktop': 8,
-  'Your current password will be invalidated. The service will restart.': 9,
+  // init/seedFiles.ts
+  'Set your admin password': 7,
 } as const
 
 /**
