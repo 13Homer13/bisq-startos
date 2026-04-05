@@ -24,8 +24,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
       'bisq-sub',
     ),
     exec: {
-      // Run /init in its own PID namespace so s6 sees itself as PID 1
-      command: ['unshare', '--pid', '--fork', '--mount-proc', '/init'],
+      command: ['/init'],
+      runAsInit: true,
       env: {
         PUID: '1000',
         PGID: '1000',
