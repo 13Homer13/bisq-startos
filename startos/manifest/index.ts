@@ -9,7 +9,6 @@ export const manifest = setupManifest({
   upstreamRepo: 'https://github.com/bisq-network/bisq',
   marketingUrl: 'https://bisq.network/',
   donationUrl: 'https://bisq.network/contribute/',
-  docsUrls: ['https://bisq.wiki/'],
   description: { short, long },
   volumes: ['main'],
   images: {
