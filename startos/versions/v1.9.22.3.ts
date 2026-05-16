@@ -3,14 +3,19 @@ import { readFile, rm } from 'fs/promises'
 import { storeJson } from '../fileModels/store.json'
 import { getDefaultPassword } from '../utils'
 
-export const v_1_9_22_2 = VersionInfo.of({
-  version: '1.9.22:2',
+export const v_1_9_22_3 = VersionInfo.of({
+  version: '1.9.22:3',
   releaseNotes: {
-    en_US: 'Internal updates (start-sdk 1.2.0)',
-    es_ES: 'Actualizaciones internas (start-sdk 1.2.0)',
-    de_DE: 'Interne Aktualisierungen (start-sdk 1.2.0)',
-    pl_PL: 'Aktualizacje wewnętrzne (start-sdk 1.2.0)',
-    fr_FR: 'Mises à jour internes (start-sdk 1.2.0)',
+    en_US: `- Adds an in-app Instructions tab
+- Internal updates (start-sdk 1.5.1)`,
+    es_ES: `- Añade una pestaña de Instrucciones en la app
+- Actualizaciones internas (start-sdk 1.5.1)`,
+    de_DE: `- Fügt eine In-App-Anleitungs-Registerkarte hinzu
+- Interne Aktualisierungen (start-sdk 1.5.1)`,
+    pl_PL: `- Dodaje zakładkę Instrukcje w aplikacji
+- Aktualizacje wewnętrzne (start-sdk 1.5.1)`,
+    fr_FR: `- Ajoute un onglet Instructions dans l'application
+- Mises à jour internes (start-sdk 1.5.1)`,
   },
   migrations: {
     up: async ({ effects }) => {
