@@ -1,5 +1,3 @@
-## How the upstream version is pulled
+# CLAUDE.md
 
-- `Dockerfile` ARG: `BISQ_VERSION=<version>`
-- Downloads `.deb` from `bisq.network/downloads/v<version>/`
-- Image is `dockerBuild` (no dockerTag in manifest to update)
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the doc map and contribution workflow.

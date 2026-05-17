@@ -5,7 +5,7 @@ export const manifest = setupManifest({
   id: 'bisq',
   title: 'Bisq',
   license: 'AGPL-3.0',
-  packageRepo: 'https://github.com/Start9Labs/bisq-startos',
+  packageRepo: 'https://github.com/Start9-Community/bisq-startos',
   upstreamRepo: 'https://github.com/bisq-network/bisq',
   marketingUrl: 'https://bisq.network/',
   donationUrl: 'https://bisq.network/contribute/',
