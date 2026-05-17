@@ -3,19 +3,18 @@ import { readFile, rm } from 'fs/promises'
 import { storeJson } from '../fileModels/store.json'
 import { getDefaultPassword } from '../utils'
 
-export const v_1_9_22_3 = VersionInfo.of({
-  version: '1.9.22:3',
+export const v_1_10_0 = VersionInfo.of({
+  version: '1.10.0:0',
   releaseNotes: {
-    en_US: `- Adds an in-app Instructions tab
-- Internal updates (start-sdk 1.5.1)`,
-    es_ES: `- Añade una pestaña de Instrucciones en la app
-- Actualizaciones internas (start-sdk 1.5.1)`,
-    de_DE: `- Fügt eine In-App-Anleitungs-Registerkarte hinzu
-- Interne Aktualisierungen (start-sdk 1.5.1)`,
-    pl_PL: `- Dodaje zakładkę Instrukcje w aplikacji
-- Aktualizacje wewnętrzne (start-sdk 1.5.1)`,
-    fr_FR: `- Ajoute un onglet Instructions dans l'application
-- Mises à jour internes (start-sdk 1.5.1)`,
+    en_US: 'Bumps Bisq → 1.10.0 (upstream security hardening release).',
+    es_ES:
+      'Actualiza Bisq → 1.10.0 (versión upstream de endurecimiento de seguridad).',
+    de_DE:
+      'Aktualisiert Bisq → 1.10.0 (Upstream-Sicherheitshärtungs-Release).',
+    pl_PL:
+      'Aktualizuje Bisq → 1.10.0 (upstreamowe wydanie wzmacniające bezpieczeństwo).',
+    fr_FR:
+      'Passe Bisq → 1.10.0 (version amont de durcissement de sécurité).',
   },
   migrations: {
     up: async ({ effects }) => {
