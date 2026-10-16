@@ -21,7 +21,7 @@ RUN wget -qO /tmp/Bisq-64bit-${BISQ_VERSION}.deb \
     rm -f /tmp/Bisq-64bit-${BISQ_VERSION}.deb*
 
 # Stage 2: Selkies webtop with bloat removed
-FROM ghcr.io/linuxserver/baseimage-selkies:debiantrixie@sha256:a5f7b38bb806c913bdabbe5667aa462d97d2c5ab3710498fe5aeee97c17287f8 AS buildstage
+FROM ghcr.io/linuxserver/baseimage-selkies:debiantrixie-3900c0f0-ls140@sha256:c3f25149cf58957fcc4259904b02cf88b1e51fc8df2f9946bc64650701e527e7 AS buildstage
 
 # Install GTK3, X11 libraries for JavaFX, and wmctrl
 RUN apt-get update && \
@@ -93,12 +93,19 @@ ENV \
   PATH="/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
   DISPLAY=:1 \
   PERL5LIB=/usr/local/bin \
-  OMP_WAIT_POLICY=PASSIVE \
-  GOMP_SPINCOUNT=0 \
   START_DOCKER=false \
   PULSE_RUNTIME_PATH=/defaults \
-  SELKIES_INTERPOSER=/usr/lib/selkies_joystick_interposer.so \
-  SELKIES_ENCODER="x264enc,jpeg" \
+  SELKIES_INTERPOSER=/usr/lib/selkies_input_interposer.so \
+  SELKIES_WEBCAM_INTERPOSER=/usr/lib/selkies_v4l2_interposer.so \
+  NVIDIA_DRIVER_CAPABILITIES=all \
+  DISABLE_DRI3=false \
+  SELKIES_ENCODER="h264enc,h265enc,vp8enc,vp9enc,av1enc,jpeg" \
+  SELKIES_ENABLE_BASIC_AUTH=false \
+  SELKIES_VIDEO_STREAMING_MODE=false \
+  SELKIES_ALLOWED_ORIGINS="*" \
+  SELKIES_RATE_CONTROL_MODE="crf,cbr" \
+  SHELL=/bin/bash \
+  __GL_SYNC_TO_VBLANK=0 \
   TITLE=Selkies
 
 # Add local files

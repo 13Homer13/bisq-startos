@@ -50,6 +50,8 @@ One image, built here in three stages: an Ubuntu builder that produces the Bisq 
 
 The stack is `browser → Selkies (port 3000) → Openbox → Bisq`. Selkies starts Openbox through its own D-Bus session wrapper, and a package-owned autostart hook launches Bisq inside that session. **`runAsInit: true` is required**, not stylistic: the base image is s6-overlay, which must be PID 1.
 
+Selkies carries video, audio, input, clipboard, and file transfers over WebSockets through the same interface. Video codec availability depends on the browser and server; JPEG provides a fallback. The flattened image restores the base image's runtime environment explicitly, with nested Docker disabled.
+
 The autostart hook is copied over the persisted Openbox autostart file on **every** launch, so an upgrade can never leave an obsolete startup script behind on a volume that predates it.
 
 **The desktop is deliberately locked down.** Passwordless sudo, terminal binaries, the remote command channel, external open helpers, and the unrelated applications sidebar are all disabled through the base image's environment. File upload and download are the one capability kept, because Bisq users need to move wallet and trade-history exports on and off the machine. Treat the webtop as a window onto Bisq, not as a general-purpose Linux desktop.
