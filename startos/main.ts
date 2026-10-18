@@ -1,3 +1,4 @@
+import { totalmem } from 'node:os'
 import {
   defaultBitcoinConnectionMode,
   storeJson,
@@ -36,6 +37,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
       'Local Bitcoin node mode is enabled, but the Bitcoin peer interface is unavailable. Start Bitcoin or enable Bisq network fallback.',
     )
   }
+
+  const heapMiB = Math.max(
+    4096,
+    Math.min(8192, Math.floor((totalmem() / 1024 ** 2 - 6144) / 4)),
+  )
 
   const subcontainer = sdk.SubContainer.of(
     effects,
@@ -76,7 +82,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
           TITLE: 'Bisq',
           CUSTOM_USER: 'bisq',
           PASSWORD,
-          JAVA_TOOL_OPTIONS: '-Xmx4g',
+          JAVA_TOOL_OPTIONS: `-Xmx${heapMiB}m`,
           BITCOIN_CONNECTION_MODE: bitcoinConnectionMode,
           BISQ_NETWORK_FALLBACK_NODES: bisqNetworkFallbackNodes,
           ...(bitcoinPeerAddress && {

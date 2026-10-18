@@ -37,12 +37,12 @@
 
 One image, built here in three stages: an Ubuntu builder that produces the Bisq tree, a digest-pinned LinuxServer Selkies webtop that supplies the desktop, and a `FROM scratch` flatten that collapses the result into a single layer.
 
-| Property      | Value                                                                    |
-| ------------- | ------------------------------------------------------------------------ |
-| Image         | Built from this repo's `Dockerfile`                                      |
-| Architectures | x86_64 only                                                              |
-| Entrypoint    | The base image's `/init`, via `sdk.useEntrypoint()` + `runAsInit`        |
-| Memory        | Requires a machine of 8 GB or better; Bisq's JVM heap is capped at 4 GiB |
+| Property      | Value                                                                           |
+| ------------- | ------------------------------------------------------------------------------- |
+| Image         | Built from this repo's `Dockerfile`                                             |
+| Architectures | x86_64 only                                                                     |
+| Entrypoint    | The base image's `/init`, via `sdk.useEntrypoint()` + `runAsInit`               |
+| Memory        | Requires a machine of 8 GB or better; Bisq's JVM heap is 4–8 GiB, scaled to RAM |
 
 | Subcontainer | Purpose                                                       |
 | ------------ | ------------------------------------------------------------- |
@@ -202,7 +202,7 @@ A restored instance does not re-raise the password task, since the password came
 3. **`bisq.properties` is regenerated on every start.** Hand edits to the Bitcoin connection do not persist; use the action.
 4. **Local-only mode fails closed.** An unreachable local node stops the service instead of silently using remote peers.
 5. **The desktop is not a general-purpose one.** Terminals, sudo, and the applications sidebar are disabled; file transfer is not.
-6. **A machine of 8 GB or better is required.** Bisq's heap is capped at 4 GiB and DAO state can consume it, with the desktop stack on top.
+6. **A machine of 8 GB or better is required.** Bisq's heap is 4 GiB there, rising to at most 8 GiB on larger machines, and DAO state can consume it, with the desktop stack on top.
 7. **First launch is slow** — joining the P2P trading network takes several minutes, every time on a fresh install.
 8. **A `Bisq-superseded-*` directory is never reaped.** Nothing removes it and it is copied into every backup. It is a complete Bisq data directory, wallet included, so deleting it is the operator's call, once they are sure nothing in it is still needed.
 
