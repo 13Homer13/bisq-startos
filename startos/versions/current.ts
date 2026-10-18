@@ -1,23 +1,13 @@
 import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '1.10.9:3',
+  version: '1.10.9:4',
   releaseNotes: {
-    en_US: `Updated the browser desktop to Selkies 2.0.0 with a refreshed LinuxServer base image. The new streaming backend supports additional video codecs and improves clipboard and file transfers. Updated start-sdk to 3.0.6.
-
-[Full Selkies release notes](https://github.com/selkies-project/selkies/releases/tag/2.0.0)`,
-    es_ES: `Se actualizó el escritorio del navegador a Selkies 2.0.0 con una imagen base de LinuxServer renovada. El nuevo motor de transmisión admite códecs de vídeo adicionales y mejora el portapapeles y las transferencias de archivos. Se actualizó start-sdk a 3.0.6.
-
-[Notas completas de Selkies](https://github.com/selkies-project/selkies/releases/tag/2.0.0)`,
-    de_DE: `Der Browser-Desktop wurde auf Selkies 2.0.0 mit einem aktualisierten LinuxServer-Basisimage umgestellt. Das neue Streaming-Backend unterstützt zusätzliche Video-Codecs und verbessert die Zwischenablage und Dateiübertragungen. start-sdk wurde auf 3.0.6 aktualisiert.
-
-[Vollständige Selkies-Versionshinweise](https://github.com/selkies-project/selkies/releases/tag/2.0.0)`,
-    pl_PL: `Zaktualizowano pulpit w przeglądarce do Selkies 2.0.0 z odświeżonym obrazem bazowym LinuxServer. Nowy mechanizm strumieniowania obsługuje dodatkowe kodeki wideo oraz ulepsza schowek i przesyłanie plików. Zaktualizowano start-sdk do 3.0.6.
-
-[Pełne informacje o wydaniu Selkies](https://github.com/selkies-project/selkies/releases/tag/2.0.0)`,
-    fr_FR: `Le bureau dans le navigateur passe à Selkies 2.0.0 avec une image de base LinuxServer actualisée. Le nouveau moteur de diffusion prend en charge des codecs vidéo supplémentaires et améliore le presse-papiers et les transferts de fichiers. start-sdk a été mis à jour vers la version 3.0.6.
-
-[Notes de version complètes de Selkies](https://github.com/selkies-project/selkies/releases/tag/2.0.0)`,
+    en_US: `Bisq's memory limit now grows with the server's RAM: it stays at 4 GiB on servers with up to 16 GB and rises to as much as 8 GiB on larger ones.`,
+    es_ES: `El límite de memoria de Bisq ahora crece con la RAM del servidor: se mantiene en 4 GiB en servidores de hasta 16 GB y sube hasta 8 GiB en los más grandes.`,
+    de_DE: `Das Speicherlimit von Bisq wächst jetzt mit dem Arbeitsspeicher des Servers: Es bleibt bei Servern mit bis zu 16 GB bei 4 GiB und steigt bei größeren auf bis zu 8 GiB.`,
+    pl_PL: `Limit pamięci Bisq rośnie teraz wraz z pamięcią RAM serwera: pozostaje na poziomie 4 GiB na serwerach do 16 GB i wzrasta do 8 GiB na większych.`,
+    fr_FR: `La limite de mémoire de Bisq suit désormais la RAM du serveur : elle reste à 4 Gio sur les serveurs jusqu’à 16 Go et monte jusqu’à 8 Gio sur les plus grands.`,
   },
   migrations: {},
 })

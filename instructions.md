@@ -12,7 +12,7 @@ Bisq is a JavaFX desktop application. This package runs it inside a browser-acce
 - A single backed-up `main` volume that holds your Bisq wallet, trades, offers, and Selkies settings.
 - A local-only Bitcoin connection by default, with an explicit Bisq network fallback mode when a local node is not available.
 - Selkies upload and download support for moving Bisq wallet/history exports to or from another machine. Unrelated desktop applications are not exposed.
-- A 4 GiB Bisq memory limit sized for DAO synchronization and monitoring.
+- A Bisq memory limit of 4 GiB, rising to as much as 8 GiB on servers with more RAM, sized for DAO synchronization and monitoring.
 
 ## Getting set up
 
@@ -46,4 +46,4 @@ information.
 - **The Bisq network profile is regenerated on every start.** Manual edits to `bisq.properties` inside the container do not persist.
 - **Local-only mode fails closed.** If the local Bitcoin peer cannot be reached, Bisq fails to start instead of silently connecting to remote Bitcoin peers.
 - **Fallback mode is explicit.** It uses remote Bisq Bitcoin peers over Tor and should be selected only when you do not want to require the local Bitcoin service.
-- **8 GB of system memory is required.** This leaves room for Bisq's 4 GiB Java heap and the browser desktop processes used to display it.
+- **8 GB of system memory is required.** This leaves room for Bisq's Java heap, 4 GiB on an 8 GB server, and the browser desktop processes used to display it.
