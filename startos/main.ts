@@ -1,6 +1,7 @@
 import { totalmem } from 'node:os'
 import {
   defaultBitcoinConnectionMode,
+  defaultUseTorSandbox,
   storeJson,
 } from './fileModels/store.json'
 import { i18n } from './i18n'
@@ -18,6 +19,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
   if (!PASSWORD) {
     throw new Error('No password in store.json')
   }
+
+  const useTorSandbox =
+    (await storeJson.read((store) => store.useTorSandbox).const(effects)) ??
+    defaultUseTorSandbox
 
   const bitcoinConnectionMode =
     (await storeJson
@@ -83,6 +88,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
           CUSTOM_USER: 'bisq',
           PASSWORD,
           JAVA_TOOL_OPTIONS: `-Xmx${heapMiB}m`,
+          BISQ_USE_TOR_SANDBOX: String(useTorSandbox),
           BITCOIN_CONNECTION_MODE: bitcoinConnectionMode,
           BISQ_NETWORK_FALLBACK_NODES: bisqNetworkFallbackNodes,
           ...(bitcoinPeerAddress && {

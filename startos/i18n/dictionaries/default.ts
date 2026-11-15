@@ -32,6 +32,13 @@ const dict = {
   'Configure Bitcoin Connection': 16,
   'Choose whether Bisq requires your local Bitcoin node or uses the Bisq network fallback.': 17,
 
+  // actions/configureTorSandbox.ts
+  'Enable Tor Sandbox': 20,
+  'Keep enabled to isolate Tor from your wallet and keys. Disable only if the sandbox prevents Tor from starting or your bridges cannot run inside it.': 21,
+  'Configure Tor Sandbox': 22,
+  'Enable Tor isolation or turn it off to recover connectivity.': 23,
+  'Changing this setting restarts Bisq. Disabling the sandbox lets a compromised Tor process access your wallet and keys. Re-enable it when the compatibility problem is resolved.': 24,
+
   // dependencies.ts
   'Enable bloom filters so Bisq can use your Bitcoin service': 18,
 } as const

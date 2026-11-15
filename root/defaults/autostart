@@ -37,18 +37,27 @@ case "${BITCOIN_CONNECTION_MODE:-local-only}" in
     ;;
 esac
 
+# Bisq's bridge-transport consent survives desktop restarts.
+tor_transport_consent=
+if [ -f "$bisq_props" ]; then
+  tor_transport_consent=$(
+    awk '/^allowPluggableTransportsInTorSandbox=(true|false)$/ { print }' "$bisq_props"
+  )
+fi
+
 cat > "$bisq_props" <<PROPS
 useTorForBtc=$use_tor_for_btc
 btcNodes=$bitcoin_nodes
 bannedSeedNodes=
 bannedBtcNodes=
 bannedPriceRelayNodes=
+$tor_transport_consent
 PROPS
 
 # Kill any leftover Bisq processes before launching it in this D-Bus session.
 pkill -f '/opt/bisq' 2>/dev/null || true
 sleep 1
-/opt/bisq/bin/Bisq &
+/opt/bisq/bin/Bisq "--useTorSandbox=${BISQ_USE_TOR_SANDBOX:-true}" &
 
 # Keep trying to maximize the Bisq window while JavaFX initializes.
 (
