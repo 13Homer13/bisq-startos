@@ -23,7 +23,6 @@
 - [File Models](#file-models)
 - [Dependencies](#dependencies)
 - [Network Access and Interfaces](#network-access-and-interfaces)
-- [Tor Sandbox](#tor-sandbox)
 - [Installation and First-Run Flow](#installation-and-first-run-flow)
 - [Actions](#actions)
 - [Tasks](#tasks)
@@ -53,7 +52,9 @@ The stack is `browser → Selkies (port 3000) → Openbox → Bisq`. Selkies sta
 
 Selkies carries video, audio, input, clipboard, and file transfers over WebSockets through the same interface. Video codec availability depends on the browser and server; JPEG provides a fallback. The flattened image restores the base image's runtime environment explicitly, with nested Docker disabled.
 
-The desktop uses Selkies 2.1.0 with pixelflux 2.2.1 and pcmflux 2.2.0. New sessions default to constant bitrate (CBR) with congestion control; constant quality (CRF) remains selectable in the sidebar. Saved client settings can override the default. The package's nginx header configuration enforces Selkies' same-origin framing policy on the static dashboard too, so open the Bisq Desktop interface directly instead of embedding it in another site's page. PyXDG is installed for Openbox's XDG autostart helper.
+The desktop uses Selkies with pixelflux and pcmflux. New sessions default to constant bitrate (CBR) with congestion control; constant quality (CRF) remains selectable in the sidebar. Saved client settings can override the default. The package's nginx header configuration enforces Selkies' same-origin framing policy on the static dashboard too, so open the Bisq Desktop interface directly instead of embedding it in another site's page. PyXDG is installed for Openbox's XDG autostart helper.
+
+Bisq's JVM runs with `-XX:-UseBASE64Intrinsics` beside the heap limit in `JAVA_TOOL_OPTIONS`. The flag disables HotSpot's Base64 intrinsic, mitigating CVE-2026-114938 (Java4Shell) in the bundled Java runtime on x86 CPUs with AVX-512 VBMI.
 
 The autostart hook is copied over the persisted Openbox autostart file on **every** launch, so an upgrade can never leave an obsolete startup script behind on a volume that predates it.
 
@@ -63,19 +64,22 @@ The autostart hook is copied over the persisted Openbox autostart file on **ever
 
 Two volumes, of which only `main` is mounted.
 
-| Volume | Mount Point | Purpose                                                                    |
-| ------ | ----------- | -------------------------------------------------------------------------- |
-| `main` | `/config`   | Webtop home, Bisq's data directory, and `store.json`                       |
-| `bisq` | not mounted | Where a 0.3.5.1 install kept Bisq's data directory; empty once it migrates |
+| Volume | Mount Point | Purpose                                              |
+| ------ | ----------- | ---------------------------------------------------- |
+| `main` | `/config`   | Webtop home, Bisq's data directory, and `store.json` |
+| `bisq` | not mounted | Legacy Bisq data directory; empty once it migrates   |
 
-| Path                                    | Holds                                                         |
-| --------------------------------------- | ------------------------------------------------------------- |
-| `store.json`                            | Package state: the desktop password and the Bitcoin mode      |
-| `.local/share/Bisq/`                    | Upstream's data directory — wallet, trades, offers, DAO state |
-| `.local/share/Bisq/bisq.properties`     | Generated on every launch; see [File Models](#file-models)    |
-| `.local/share/Bisq-superseded-<stamp>/` | A data directory the 0.3.5.1 migration set aside              |
+| Path                                       | Holds                                                         |
+| ------------------------------------------ | ------------------------------------------------------------- |
+| `store.json`                               | Package state: the desktop password and the Bitcoin mode      |
+| `.local/share/Bisq/`                       | Upstream's data directory — wallet, trades, offers, DAO state |
+| `.local/share/Bisq/bisq.properties`        | Generated on every launch; see [File Models](#file-models)    |
+| `.local/share/Bisq/btc_mainnet/tor/data/`  | Tor state                                                     |
+| `.local/share/Bisq/btc_mainnet/tor/bin/`   | Bundled Tor files                                             |
+| `.local/share/Bisq/btc_mainnet/tor/sandy/` | The Tor sandbox executable                                    |
+| `.local/share/Bisq-superseded-<stamp>/`    | A data directory the legacy migration set aside               |
 
-**A Bisq carried over from StartOS 0.3.5.1** arrives with its data directory in `bisq`. The `1.10.9:1` migration copies it to `main/.local/share/Bisq/`, owned by the desktop user (`1000:1000`), then empties `bisq`. A data directory already at that path, which a Bisq started on an earlier 0.4.0 release created, is first renamed to `Bisq-superseded-<UTC timestamp>/` and never deleted. If the migration is interrupted, the next attempt finishes it; `.local/share/.bisq-0.3.5.1` and `.bisq-0.3.5.1.partial` are its staging copies. The move runs once, on the update into `1.10.9:1`, so **a new, empty wallet on such an install, with data still in `bisq`, means Bisq is on a release before `1.10.9:1`, and updating runs the move.**
+**A legacy Bisq install** arrives with its data directory in `bisq`. The upgrade migration copies it to `main/.local/share/Bisq/`, owned by the desktop user (`1000:1000`), then empties `bisq`. A data directory already at that path is first renamed to `Bisq-superseded-<UTC timestamp>/` and never deleted. If the migration is interrupted, the next attempt finishes it; `.local/share/.bisq-0.3.5.1` and `.bisq-0.3.5.1.partial` are its staging copies. The move runs once during upgrade. **A new, empty wallet with legacy data still in `bisq` indicates the transfer has not run; updating to a package with the migration runs it.**
 
 **Your wallet is in `main`.** There is nothing kept outside it, which makes the backup the whole of your recovery story for anything Bisq holds.
 
@@ -105,7 +109,7 @@ Bitcoin, and **whether it is required depends on the connection mode**. `startos
 | `local-only` (default) | Required, `kind: 'running'`, health check `bitcoind` |
 | `bisq-network`         | Not a dependency at all                              |
 
-The accepted versions are `28.4:29`, `29.4:16`, `30.3:16` or `31.1:16` and later within each major line, or Bitcoin Knots (pre-RDTS) `29.3:29` and later. Every accepted build has the bridge-only peer listener (`peer-local`, port 58334).
+Every accepted Bitcoin build supplies the bridge-only peer listener (`peer-local`, port 58334). The dependency builder owns the accepted version ranges.
 
 In local-only mode Bisq connects to Bitcoin's private, whitelisted peer listener over the internal bridge — a trusted connection to your own node, which is the point of running Bisq at home. That listener also requires Bitcoin to serve **bloom filters**, which is not on by default, so the package raises a task on Bitcoin's own page to turn it on (see [Tasks](#tasks)).
 
@@ -123,19 +127,11 @@ One interface, and what it serves is a remote desktop rather than a web applicat
 
 Bound on the `ui-multi` MultiHost over HTTP and not masked.
 
-The StartOS 0.3.5 package exposed a host named `main` (Tor 80→3000 and 3389→3389, LAN 443→3000 and 3389→3389). The `1.10.9:2` migration retires it, freeing its ports; its onion and any domain on it are not moved to `ui-multi`.
+Legacy installs exposed a host named `main` (Tor 80→3000 and 3389→3389, LAN 443→3000 and 3389→3389). An upgrade migration retires it, freeing its ports; its onion and any domain on it are not moved to `ui-multi`.
 
 The interface is password-protected by Selkies itself, using the credential in `store.json` — so unlike most packages here, the service has its own login independent of StartOS. That login is what stands between anyone who can reach the address and your Bisq wallet.
 
 Bisq's own outbound Tor connections are made by Bisq, not by StartOS, and are unaffected by how this interface is reached.
-
-## Tor Sandbox
-
-Tor isolation is enabled by default. Change it with **Configure Tor Sandbox** in StartOS; the choice persists across restarts and is independent of the Bitcoin connection mode.
-
-The strongest Linux sandbox reports `Tor runs in the level base of its sandbox` in `.local/share/Bisq/bisq.log`. A **Weaker Tor sandbox** dialog identifies protections unavailable on the server.
-
-Tor state is in `.local/share/Bisq/btc_mainnet/tor/data/`, bundled Tor files in `.local/share/Bisq/btc_mainnet/tor/bin/`, and the sandbox executable in `.local/share/Bisq/btc_mainnet/tor/sandy/`. Downgrades are blocked.
 
 ## Installation and First-Run Flow
 
@@ -177,6 +173,7 @@ Keeps Tor isolation enabled by default and provides the upstream recovery switch
 - **Cost:** changing the setting restarts the desktop and Bisq. Disabling isolation lets a compromised Tor process access wallet files and keys.
 - **Repeat safety:** idempotent; the current choice prefills the form and survives restarts and backups.
 - **Scope:** independent of the Bitcoin connection mode; local-only mode still requires the local Bitcoin service and fails closed.
+- **Sandbox strength:** the strongest Linux sandbox reports `Tor runs in the level base of its sandbox` in `.local/share/Bisq/bisq.log`. A **Weaker Tor sandbox** dialog identifies protections unavailable on the server.
 
 ## Tasks
 
@@ -207,7 +204,7 @@ Nothing here reports on Bisq's connection to Bitcoin or to the P2P network. The 
 
 ## Backups and Restore
 
-The `main` volume is copied wholesale — `sdk.Backups.ofVolumes('main')`. That is the webtop home, Bisq's entire data directory, `store.json`, and any `Bisq-superseded-*` directory. `bisq` is not backed up: it is empty once the 0.3.5.1 migration has run.
+The `main` volume is copied wholesale — `sdk.Backups.ofVolumes('main')`. That is the webtop home, Bisq's entire data directory, `store.json`, and any `Bisq-superseded-*` directory. `bisq` is not backed up: it is empty once the legacy migration has run.
 
 **This backup contains your wallet.** Everything Bisq holds — keys, trade history, offers, and the DAO state — is in `main`, so a restore brings back a working, funded instance with the same desktop password.
 
@@ -225,6 +222,7 @@ A restored instance does not re-raise the password task, since the password came
 6. **A machine of 8 GB or better is required.** Bisq's heap is 4 GiB there, rising to at most 8 GiB on larger machines, and DAO state can consume it, with the desktop stack on top.
 7. **First launch is slow** — joining the P2P trading network takes several minutes, every time on a fresh install.
 8. **A `Bisq-superseded-*` directory is never reaped.** Nothing removes it and it is copied into every backup. It is a complete Bisq data directory, wallet included, so deleting it is the operator's call, once they are sure nothing in it is still needed.
+9. **Package downgrades are blocked.**
 
 ---
 
@@ -239,7 +237,7 @@ subcontainers:
   - bisq-sub # the oneshot and the desktop daemon
 volumes:
   main: /config
-  bisq: null # not mounted; a 0.3.5.1 install's data directory until the 1.10.9:1 migration moves it into main
+  bisq: null # not mounted; legacy data until the upgrade migration moves it into main
 file_models:
   - store.json
   # .local/share/Bisq/bisq.properties is generated each launch, not modelled
