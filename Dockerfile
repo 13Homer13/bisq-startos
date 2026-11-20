@@ -1,11 +1,11 @@
-# Stage 1: Install Bisq in Ubuntu where the .deb works
+# Stage 1: Verify and extract Bisq's upstream Debian package
 FROM ubuntu:jammy AS bisq-builder
 
-ARG BISQ_VERSION=1.10.11
+ARG BISQ_VERSION=1.10.12
 ARG BISQ_PGP_KEY=B493319106CC3D1F252E19CBF806F422E222AA02
 
 RUN apt-get update && \
-    apt-get install -y wget gnupg xdg-utils && \
+    apt-get install -y wget gnupg && \
     rm -rf /var/lib/apt/lists/*
 
 RUN wget -qO /tmp/Bisq-64bit-${BISQ_VERSION}.deb \
@@ -16,7 +16,7 @@ RUN wget -qO /tmp/Bisq-64bit-${BISQ_VERSION}.deb \
     gpg --digest-algo SHA256 --verify \
       /tmp/Bisq-64bit-${BISQ_VERSION}.deb.asc \
       /tmp/Bisq-64bit-${BISQ_VERSION}.deb && \
-    dpkg -i /tmp/Bisq-64bit-${BISQ_VERSION}.deb || true && \
+    dpkg-deb --extract /tmp/Bisq-64bit-${BISQ_VERSION}.deb / && \
     test -d /opt/bisq && \
     rm -f /tmp/Bisq-64bit-${BISQ_VERSION}.deb*
 

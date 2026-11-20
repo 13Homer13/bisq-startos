@@ -1,6 +1,6 @@
 # Updating the upstream version
 
-This package wraps the Bisq desktop application (from `bisq-network/bisq`), installing the upstream `.deb` published at `bisq.network/downloads/v<version>/` into a LinuxServer Selkies webtop image and verifying it against a pinned PGP key.
+This package wraps the Bisq desktop application (from `bisq-network/bisq`). It verifies the upstream `.deb` published at `bisq.network/downloads/v<version>/` against a pinned PGP key and extracts its Bisq files into a LinuxServer Selkies webtop image.
 
 ## Determining the upstream version
 

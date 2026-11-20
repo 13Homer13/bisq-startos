@@ -54,8 +54,6 @@ Selkies carries video, audio, input, clipboard, and file transfers over WebSocke
 
 The desktop uses Selkies with pixelflux and pcmflux. New sessions default to constant bitrate (CBR) with congestion control; constant quality (CRF) remains selectable in the sidebar. Saved client settings can override the default. The package's nginx header configuration enforces Selkies' same-origin framing policy on the static dashboard too, so open the Bisq Desktop interface directly instead of embedding it in another site's page. PyXDG is installed for Openbox's XDG autostart helper.
 
-Bisq's JVM runs with `-XX:-UseBASE64Intrinsics` beside the heap limit in `JAVA_TOOL_OPTIONS`. The flag disables HotSpot's Base64 intrinsic, mitigating CVE-2026-114938 (Java4Shell) in the bundled Java runtime on x86 CPUs with AVX-512 VBMI.
-
 The autostart hook is copied over the persisted Openbox autostart file on **every** launch, so an upgrade can never leave an obsolete startup script behind on a volume that predates it.
 
 **The desktop is deliberately locked down.** Passwordless sudo, terminal binaries, the remote command channel, external open helpers, and the unrelated applications sidebar are all disabled through the base image's environment. File upload and download are the one capability kept, because Bisq users need to move wallet and trade-history exports on and off the machine. Treat the webtop as a window onto Bisq, not as a general-purpose Linux desktop.

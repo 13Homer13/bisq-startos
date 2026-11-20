@@ -38,5 +38,4 @@ verified, tried, and decided belongs in the commit message and the PR body.
 - **Keep `root/defaults/autostart` unconditional.** It overwrites the persisted copy on every launch so an upgraded volume never keeps an obsolete startup script; generating `bisq.properties` and clearing Bisq's stale `.lock`/`.pid` files belong there, not in `main.ts`.
 - **Don't relax the local-only failure path** (`check-bitcoin-node` and the throw in `main.ts`): Bisq must never reach remote Bitcoin peers with the user's wallet addresses when they chose their own node.
 - **Don't loosen the Selkies hardening env** (`DISABLE_SUDO`, `DISABLE_TERMINALS`, `SELKIES_COMMAND_ENABLED=false`, the sidebar flags): it keeps the webtop from being a shell on the box. `SELKIES_FILE_TRANSFERS` stays on for wallet exports.
-- **Keep `-XX:-UseBASE64Intrinsics` in `JAVA_TOOL_OPTIONS` until the bundled JDK is verified patched for CVE-2026-114938.** Bisq application arguments do not configure its JVM.
 - **Keep `bisq` in the manifest's `volumes`, though nothing mounts it.** The `1.10.9:1` migration reads a 0.3.5.1 install's data from it, and a migration can read only a declared volume.
